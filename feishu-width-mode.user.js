@@ -27,7 +27,44 @@
   // document-start 阶段注入：内容默认隐藏 + 全屏宽度样式
   const s = document.createElement('style');
   s.textContent = `
-    @keyframes fsSpin { to { transform: rotate(360deg); } }
+    @keyframes fsPenMove {
+      0% { transform: translate(15px, 65px); opacity: 0; }
+      3% { transform: translate(15px, 65px); opacity: 1; }
+      28% { transform: translate(185px, 65px); opacity: 1; }
+      31% { transform: translate(15px, 85px); opacity: 1; }
+      56% { transform: translate(185px, 85px); opacity: 1; }
+      59% { transform: translate(15px, 105px); opacity: 1; }
+      76% { transform: translate(130px, 105px); opacity: 1; }
+      88% { transform: translate(130px, 105px); opacity: 1; }
+      96%, 100% { transform: translate(130px, 105px); opacity: 0; }
+    }
+    @keyframes fsInkDotPulse {
+      0%, 3% { opacity: 0; }
+      5% { opacity: 1; }
+      76% { opacity: 0.8; }
+      88%, 100% { opacity: 0; }
+    }
+    @keyframes fsInkDraw1 {
+      0%, 3% { stroke-dashoffset: 200; opacity: 0; }
+      4% { stroke-dashoffset: 200; opacity: 1; }
+      28% { stroke-dashoffset: 0; opacity: 1; }
+      88% { stroke-dashoffset: 0; opacity: 1; }
+      96%, 100% { stroke-dashoffset: 0; opacity: 0; }
+    }
+    @keyframes fsInkDraw2 {
+      0%, 30% { stroke-dashoffset: 200; opacity: 0; }
+      31% { stroke-dashoffset: 200; opacity: 1; }
+      56% { stroke-dashoffset: 0; opacity: 1; }
+      88% { stroke-dashoffset: 0; opacity: 1; }
+      96%, 100% { stroke-dashoffset: 0; opacity: 0; }
+    }
+    @keyframes fsInkDraw3 {
+      0%, 58% { stroke-dashoffset: 150; opacity: 0; }
+      59% { stroke-dashoffset: 150; opacity: 1; }
+      76% { stroke-dashoffset: 0; opacity: 1; }
+      88% { stroke-dashoffset: 0; opacity: 1; }
+      96%, 100% { stroke-dashoffset: 0; opacity: 0; }
+    }
 
     .page-main-item.editor {
       width: auto !important;
@@ -65,14 +102,27 @@
       opacity: 0 !important;
       pointer-events: none !important;
     }
-    .fs-doc-loading .fs-spinner {
-      width: 32px !important;
-      height: 32px !important;
-      border: 3px solid #e5e6eb !important;
-      border-top-color: #3370ff !important;
-      border-radius: 50% !important;
-      animation: fsSpin 0.8s linear infinite !important;
+    .fs-doc-loading .fs-pen-svg {
+      display: block !important;
+      margin: 0 auto !important;
     }
+    .fs-doc-loading .fs-pen-group {
+      animation: fsPenMove 5s ease-in-out infinite !important;
+    }
+    .fs-doc-loading .fs-ink-dot {
+      animation: fsInkDotPulse 5s ease-in-out infinite !important;
+    }
+    .fs-doc-loading .fs-ink {
+      stroke-dasharray: 200 !important;
+      stroke-dashoffset: 200 !important;
+    }
+    .fs-doc-loading .fs-ink.fs-ink-3 {
+      stroke-dasharray: 150 !important;
+      stroke-dashoffset: 150 !important;
+    }
+    .fs-doc-loading .fs-ink-1 { animation: fsInkDraw1 5s ease-in-out infinite !important; }
+    .fs-doc-loading .fs-ink-2 { animation: fsInkDraw2 5s ease-in-out infinite !important; }
+    .fs-doc-loading .fs-ink-3 { animation: fsInkDraw3 5s ease-in-out infinite !important; }
   `;
   (document.head || document.documentElement).appendChild(s);
 
@@ -87,7 +137,36 @@
     overlay.className = 'fs-doc-loading';
     overlay.style.left = rect.left + 'px';
     overlay.style.width = rect.width + 'px';
-    overlay.innerHTML = '<div class="fs-spinner"></div>';
+    overlay.innerHTML = `
+      <svg class="fs-pen-svg" viewBox="-10 15 250 110" width="200" height="88">
+        <line x1="15" y1="65" x2="185" y2="65" stroke="#ede9e3" stroke-width="0.5"/>
+        <line x1="15" y1="85" x2="185" y2="85" stroke="#ede9e3" stroke-width="0.5"/>
+        <line x1="15" y1="105" x2="130" y2="105" stroke="#ede9e3" stroke-width="0.5"/>
+        <path class="fs-ink fs-ink-1" d="M15,65 C45,62 75,67 105,64 C135,61 165,66 185,64"
+              stroke="#1e293b" fill="none" stroke-width="1.5" stroke-linecap="round"/>
+        <path class="fs-ink fs-ink-2" d="M15,85 C45,82 75,87 105,84 C135,81 165,86 185,84"
+              stroke="#1e293b" fill="none" stroke-width="1.5" stroke-linecap="round"/>
+        <path class="fs-ink fs-ink-3" d="M15,105 C35,102 55,107 75,104 C95,101 115,106 130,104"
+              stroke="#1e293b" fill="none" stroke-width="1.5" stroke-linecap="round"/>
+        <g class="fs-pen-group">
+          <circle class="fs-ink-dot" r="1.5" fill="#1e293b"/>
+          <g transform="rotate(45)">
+            <rect x="-4" y="-50" width="8" height="36" rx="2" fill="#1e293b"/>
+            <rect x="-4.5" y="-50" width="9" height="2" rx="0.5" fill="#c9a96e"/>
+            <rect x="-4.5" y="-47" width="9" height="1" rx="0.5" fill="#c9a96e"/>
+            <rect x="3.5" y="-48" width="1.5" height="20" rx="0.5" fill="#c9a96e"/>
+            <circle cx="4.25" cy="-28" r="0.8" fill="#c9a96e"/>
+            <rect x="-3" y="-14" width="6" height="6" rx="1.5" fill="#475569"/>
+            <line x1="-3" y1="-12" x2="3" y2="-12" stroke="#334155" stroke-width="0.5"/>
+            <line x1="-3" y1="-10" x2="3" y2="-10" stroke="#334155" stroke-width="0.5"/>
+            <path d="M-2,-8 L0,0 L2,-8" fill="#c9a96e"/>
+            <path d="M-2,-8 L-0.3,0" stroke="#b8963e" stroke-width="0.3" fill="none"/>
+            <path d="M2,-8 L0.3,0" stroke="#b8963e" stroke-width="0.3" fill="none"/>
+            <circle cx="0" cy="-7.5" r="0.6" fill="#1e293b"/>
+            <line x1="0" y1="-7" x2="0" y2="-0.5" stroke="#1e293b" stroke-width="0.3"/>
+          </g>
+        </g>
+      </svg>`;
     document.body.appendChild(overlay);
     clearTimeout(safetyTimer);
     safetyTimer = setTimeout(removeDocLoading, 8000);
