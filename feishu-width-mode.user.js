@@ -3,7 +3,7 @@
 // @name:zh-CN   飞书文档自动全屏宽度
 // @name:en      Feishu Doc Auto Full Width
 // @namespace    https://greasyfork.org/zh-CN/users/811937-daixuyang
-// @version      1.3
+// @version      1.5
 // @description  自动将飞书/Lark文档页面宽度设置为全屏模式，无需手动切换
 // @description:zh-CN  自动将飞书/Lark文档页面宽度设置为全屏模式，无需手动切换
 // @description:en     Automatically set Feishu/Lark document page width to full mode
@@ -24,7 +24,7 @@
 (function () {
   'use strict';
 
-  // document-start 阶段注入：内容默认隐藏 + 全屏宽度样式
+  // document-start 阶段注入：全屏宽度样式 + 加载遮罩
   const s = document.createElement('style');
   s.textContent = `
     @keyframes fsPenMove {
@@ -79,12 +79,6 @@
       max-width: none !important;
       margin-left: 270px !important;
       margin-right: 48px !important;
-    }
-
-    .page-main:not(.fs-ready) .page-main-item { opacity: 0 !important; }
-    .page-main.fs-ready .page-main-item {
-      opacity: 1 !important;
-      transition: opacity 0.2s ease !important;
     }
 
     .fs-doc-loading {
@@ -182,10 +176,6 @@
     });
   }
 
-  function markReady() {
-    document.querySelectorAll('.page-main').forEach(el => el.classList.add('fs-ready'));
-  }
-
   function getCsrfToken() {
     const match = document.cookie.match(/_csrf_token=([^;]+)/);
     return match ? match[1] : '';
@@ -243,7 +233,6 @@
     } catch (e) {
       console.error('[飞书全屏] API 设置失败:', e);
     }
-    markReady();
     setTimeout(removeDocLoading, 300);
   }
 
